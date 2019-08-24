@@ -1,0 +1,9 @@
+#editor {
+    width: 600px;
+    height: 600px;
+    border: 2px solid transparent;
+}
+
+#editor.dragging {
+    border: 2px dashed #d5d5d5;
+}
