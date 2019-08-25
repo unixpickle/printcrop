@@ -173,12 +173,12 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(cropped, 0, 0);
 
-            const generationContainer = document.getElementById('generation');
-            generationContainer.innerHTML = '';
-
-            const img = document.createElement('img');
-            img.src = canvas.toDataURL('image/png');
-            generationContainer.appendChild(img);
+            const img = document.createElement('a');
+            img.href = canvas.toDataURL('image/png');
+            img.download = 'image.png';
+            document.body.appendChild(img);
+            img.click();
+            document.body.removeChild(img);
         }
     }
 
