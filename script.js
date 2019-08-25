@@ -153,13 +153,13 @@
         }
 
         updateCropShape() {
-            this.cropper.setCropShape(parseFloat(this.widthField.value),
-                parseFloat(this.heightField.value));
+            this.cropper.setCropShape(parseFloat(this.widthField.value) || 1,
+                parseFloat(this.heightField.value) || 1);
         }
 
         async generate() {
-            const width = parseFloat(this.widthField.value);
-            const height = parseFloat(this.heightField.value);
+            const width = parseFloat(this.widthField.value) || 1;
+            const height = parseFloat(this.heightField.value) || 1;
             const printSize = document.getElementById('print-size').value;
             const printWidth = parseFloat(printSize.split('x')[0]);
             const printHeight = parseFloat(printSize.split('x')[1]);
