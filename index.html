@@ -8,15 +8,22 @@
     </head>
     <body>
         <canvas id="cropper" width="1200" height="1200"></canvas>
+        <br>
+        <label>Print size: </label>
         <select id="print-size">
             <option name="4x6">4x6</option>
             <option name="5x7">5x7</option>
         </select>
+        <br>
         <div id="crop-size">
             <label>Crop size:</label>
             <input id="crop-width" placeholder="Width">
             <span>x</span>
             <input id="crop-height" placeholder="Height">
         </div>
+        <br>
+        <button id="generate">Generate</button>
+        <br>
+        <div id="generation"></div>
     </body>
 </html>

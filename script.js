@@ -21,6 +21,9 @@
         }
 
         setCropShape(width, height) {
+            if (this.image === null) {
+                return;
+            }
             const scale1 = this.image.width / width;
             const scale2 = this.image.height / height;
             const scale = Math.min(scale1, scale2);
@@ -52,10 +55,12 @@
                 return;
             }
             const coords = this.coords();
-            const photoX = (x - coords.x) / coords.scale;
-            const photoY = (y - coords.y) / coords.scale;
-            this.cropX = Math.min(this.image.width, Math.max(0, photoX - this.cropWidth / 2));
-            this.cropY = Math.min(this.image.height, Math.max(0, photoY - this.cropHeight / 2));
+            const photoX = (x - coords.x) / coords.scale * 2;
+            const photoY = (y - coords.y) / coords.scale * 2;
+            const maxX = this.image.width - this.cropWidth;
+            const maxY = this.image.height - this.cropHeight;
+            this.cropX = Math.min(maxX, Math.max(0, photoX - this.cropWidth / 2));
+            this.cropY = Math.min(maxY, Math.max(0, photoY - this.cropHeight / 2));
             this.draw();
         }
 
@@ -83,19 +88,44 @@
             const y = (size - scale * this.image.height) / 2;
             return { x: x, y: y, scale: scale };
         }
+
+        croppedImage() {
+            const canvas = document.createElement('canvas');
+            canvas.width = this.cropWidth;
+            canvas.height = this.cropHeight;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(this.image, -this.cropX, -this.cropY);
+
+            const img = document.createElement('img');
+            const res = new Promise((resolve) => {
+                img.onload = () => resolve(img);
+            });
+            img.src = canvas.toDataURL('image/png');
+            return res;
+        }
     }
 
     class App {
         constructor() {
-            this.cropper = Cropper();
+            this.cropper = new Cropper();
             this.widthField = document.getElementById('crop-width');
             this.heightField = document.getElementById('crop-height');
+            [this.widthField, this.heightField].forEach((f) => {
+                f.addEventListener('keydown', () => this.updateCropShape());
+                f.addEventListener('keyup', () => this.updateCropShape());
+                f.addEventListener('change', () => this.updateCropShape());
+            });
             this.setupDragAndDrop();
+            document.getElementById('generate').addEventListener('click', () => {
+                this.generate();
+            });
         }
 
         setupDragAndDrop() {
             this.cropper.canvas.addEventListener('dragover', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 this.cropper.canvas.classList.add('dragging');
             });
             this.cropper.canvas.addEventListener('drop', (e) => {
@@ -112,15 +142,43 @@
                 img.onload = () => this.handleNewImage(img);
                 img.src = objURL;
             });
-            this.cropper.canvas.addEventListener('dragend', (e) => {
+            this.cropper.canvas.addEventListener('dragleave', (e) => {
                 this.cropper.canvas.classList.remove('dragging');
             });
         }
 
         handleNewImage(img) {
             this.cropper.setImage(img);
+            this.updateCropShape();
+        }
+
+        updateCropShape() {
             this.cropper.setCropShape(parseFloat(this.widthField.value),
                 parseFloat(this.heightField.value));
+        }
+
+        async generate() {
+            const width = parseFloat(this.widthField.value);
+            const height = parseFloat(this.heightField.value);
+            const printSize = document.getElementById('print-size').value;
+            const printWidth = parseFloat(printSize.split('x')[0]);
+            const printHeight = parseFloat(printSize.split('x')[1]);
+
+            const cropped = await this.cropper.croppedImage();
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.ceil(cropped.width * printWidth / width);
+            canvas.height = Math.ceil(cropped.height * printHeight / height);
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#888';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(cropped, 0, 0);
+
+            const generationContainer = document.getElementById('generation');
+            generationContainer.innerHTML = '';
+
+            const img = document.createElement('img');
+            img.src = canvas.toDataURL('image/png');
+            generationContainer.appendChild(img);
         }
     }
 
