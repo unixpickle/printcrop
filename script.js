@@ -72,13 +72,20 @@
                 coords.scale * this.image.height);
 
             ctx.strokeStyle = 'black';
-            ctx.lineWidth = 4;
+            ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.rect(coords.x + this.cropX * coords.scale,
-                coords.y + this.cropY * coords.scale,
-                this.cropWidth * coords.scale,
-                this.cropHeight * coords.scale);
+            const x = coords.x + this.cropX * coords.scale;
+            const y = coords.y + this.cropY * coords.scale;
+            const w = this.cropWidth * coords.scale;
+            const h = this.cropHeight * coords.scale;
+            ctx.rect(x + 2, y + 2, w - 4, h - 4);
             ctx.stroke();
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            ctx.beginPath();
+            ctx.rect(0, 0, this.canvas.width, this.canvas.height);
+            ctx.rect(x, y, w, h);
+            ctx.fill('evenodd');
         }
 
         coords() {
@@ -123,14 +130,15 @@
         }
 
         setupDragAndDrop() {
-            this.cropper.canvas.addEventListener('dragover', (e) => {
+            const container = document.getElementById('cropper-container');
+            container.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                this.cropper.canvas.classList.add('dragging');
+                container.classList.add('dragging');
             });
-            this.cropper.canvas.addEventListener('drop', (e) => {
+            container.addEventListener('drop', (e) => {
                 e.preventDefault();
-                this.cropper.canvas.classList.remove('dragging');
+                container.classList.remove('dragging');
 
                 const files = e.target.files || e.dataTransfer.files;
                 if (files.length !== 1) {
@@ -142,12 +150,13 @@
                 img.onload = () => this.handleNewImage(img);
                 img.src = objURL;
             });
-            this.cropper.canvas.addEventListener('dragleave', (e) => {
-                this.cropper.canvas.classList.remove('dragging');
+            container.addEventListener('dragleave', (e) => {
+                container.classList.remove('dragging');
             });
         }
 
         handleNewImage(img) {
+            document.getElementById('cropper-container').classList.add('filled');
             this.cropper.setImage(img);
             this.updateCropShape();
         }
@@ -158,11 +167,20 @@
         }
 
         async generate() {
+            if (!this.cropper.image) {
+                alert('You must pick an image first');
+                return;
+            }
+
             const width = parseFloat(this.widthField.value) || 1;
             const height = parseFloat(this.heightField.value) || 1;
             const printSize = document.getElementById('print-size').value;
-            const printWidth = parseFloat(printSize.split('x')[0]);
-            const printHeight = parseFloat(printSize.split('x')[1]);
+            let printWidth = parseFloat(printSize.split('x')[0]);
+            let printHeight = parseFloat(printSize.split('x')[1]);
+
+            if (width > height) {
+                [printWidth, printHeight] = [printHeight, printWidth];
+            }
 
             const cropped = await this.cropper.croppedImage();
             const canvas = document.createElement('canvas');

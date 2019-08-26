@@ -1,9 +1,62 @@
-#cropper {
-    width: 600px;
-    height: 600px;
-    border: 2px solid #d5d5d5;
+body {
+    font-family: sans-serif;
+    background-color: #eefaff;
 }
 
-#cropper.dragging {
-    border: 2px dashed #d5d5d5;
+#cropper-container {
+    background-color: white;
+    margin: 20px auto;
+    position: relative;
+    width: 600px;
+    height: 600px;
+    box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.3);
+}
+
+#cropper-container.dragging {
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.5);
+}
+
+#drag-overlay {
+    position: absolute;
+    display: block;
+    text-align: center;
+    width: 100%;
+    left: 0;
+    top: calc(50% - 20px);
+    line-height: 40px;
+    height: 40px;
+}
+
+#cropper-container.filled > #drag-overlay {
+    display: none;
+}
+
+#cropper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#crop-width, #crop-height {
+    width: 50px;
+}
+
+.field {
+    text-align: left;
+    margin: 10px auto;
+    width: 300px;
+}
+
+.field > label {
+    text-align: right;
+    width: 150px;
+    margin-right: 10px;
+    float: left;
+}
+
+.field > button {
+    display: block;
+    margin: auto;
 }
