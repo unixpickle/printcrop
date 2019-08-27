@@ -34,6 +34,12 @@
             this.draw();
         }
 
+        unsetCropShape() {
+            this.cropWidth = null;
+            this.cropHeight = null;
+            this.draw();
+        }
+
         setupMouseEvents() {
             this.canvas.addEventListener('mousedown', (e) => {
                 const moveHandler = (e) => {
@@ -65,11 +71,19 @@
         }
 
         draw() {
+            if (!this.image) {
+                return;
+            }
+
             const ctx = this.canvas.getContext('2d');
             const coords = this.coords();
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             ctx.drawImage(this.image, coords.x, coords.y, coords.scale * this.image.width,
                 coords.scale * this.image.height);
+
+            if (this.cropWidth === null || this.cropHeight === null) {
+                return;
+            }
 
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 3;
@@ -97,6 +111,10 @@
         }
 
         croppedImage() {
+            if (this.cropWidth === null || this.cropHeight === null) {
+                throw new Error('no cropped region');
+            }
+
             const canvas = document.createElement('canvas');
             canvas.width = this.cropWidth;
             canvas.height = this.cropHeight;
@@ -161,7 +179,16 @@
             this.updateCropShape();
         }
 
+        validateWidthHeight() {
+            return !(isNaN(parseFloat(this.widthField.value)) ||
+                isNaN(parseFloat(this.heightField.value)));
+        }
+
         updateCropShape() {
+            if (!this.validateWidthHeight()) {
+                this.cropper.unsetCropShape();
+                return;
+            }
             this.cropper.setCropShape(parseFloat(this.widthField.value) || 1,
                 parseFloat(this.heightField.value) || 1);
         }
@@ -169,6 +196,9 @@
         async generate() {
             if (!this.cropper.image) {
                 alert('You must pick an image first');
+                return;
+            } else if (!this.cropper.cropWidth || !this.validateWidthHeight()) {
+                alert('You must specify a crop size first');
                 return;
             }
 
