@@ -221,12 +221,17 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(cropped, 0, 0);
 
-            const img = document.createElement('a');
-            img.href = canvas.toDataURL('image/png');
-            img.download = 'image.png';
-            document.body.appendChild(img);
-            img.click();
-            document.body.removeChild(img);
+            canvas.toBlob((blob) => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'image.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setTimeout(() => {
+                    URL.revokeObjectURL(link.href);
+                }, 100);
+            }, 'image/png');
         }
     }
 
