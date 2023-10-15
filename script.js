@@ -219,7 +219,11 @@
             const ctx = canvas.getContext('2d');
             ctx.fillStyle = '#888';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(cropped, 0, 0);
+            ctx.drawImage(
+                cropped,
+                (canvas.width - cropped.width) / 2,
+                (canvas.height - cropped.height) / 2,
+            );
 
             canvas.toBlob((blob) => {
                 const link = document.createElement('a');
