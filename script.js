@@ -217,7 +217,7 @@
             canvas.width = Math.ceil(cropped.width * printWidth / width);
             canvas.height = Math.ceil(cropped.height * printHeight / height);
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#888';
+            ctx.fillStyle = document.getElementById('bg-color').value;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(
                 cropped,
