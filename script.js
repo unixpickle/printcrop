@@ -165,7 +165,10 @@
                 const file = files[0];
                 const objURL = URL.createObjectURL(file);
                 const img = document.createElement('img');
-                img.onload = () => this.handleNewImage(img);
+                img.onload = () => {
+                    URL.revokeObjectURL(objURL);
+                    this.handleNewImage(img);
+                }
                 img.src = objURL;
             });
             container.addEventListener('dragleave', (e) => {
